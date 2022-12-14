@@ -1,4 +1,4 @@
-// import Loader from './Loader/Loader';
+import Loader from './Loader/Loader';
 import Searchbar from './Searchbar/Searchbar';
 import getImages from 'api/api';
 import ImageGallery from './ImageGallery/ImageGallery';
@@ -14,6 +14,7 @@ class App extends Component {
     images: [],
     page: 1,
     currentResponseLength: null,
+    showModal: false,
   };
 
   handleSubmit = e => {
@@ -24,7 +25,6 @@ class App extends Component {
     this.setState({
       images: [],
       page: 1,
-      isLoading: false,
     });
     console.log(e.target.elements[1].value);
     console.log(e);
@@ -36,15 +36,18 @@ class App extends Component {
     if (this.state.query === prevState.query && this.state.page === 1) {
       console.log('this.state === ', this.state);
       console.log('prevState === ', prevState);
+      // this.setState({
+      //   isLoading: true
+      // })
       getImages(this.state.query, this.state.page)
         .then(images => {
           console.log(images.length);
           this.setState(state => {
             return {
               images,
-              page: state.page + 1,
               isLoading: false,
               currentResponseLength: images.length,
+              page: state.page + 1,
             };
           });
         })
@@ -52,7 +55,9 @@ class App extends Component {
           console.log(error);
         })
         .finally(() => {
-          'Vse norm';
+          this.setState({
+            isLoading: false,
+          });
         });
     }
   }
@@ -72,6 +77,9 @@ class App extends Component {
   };
 
   loadMore = () => {
+    this.setState({
+      isLoading: true,
+    });
     getImages(this.state.query, this.state.page)
       .then(result => {
         console.log(result);
@@ -88,6 +96,7 @@ class App extends Component {
         this.setState(prevState => {
           return {
             page: prevState.page + 1,
+            isLoading: false,
           };
         });
       });
@@ -99,7 +108,7 @@ class App extends Component {
       'this.state.currentResponseLength === ',
       this.state.currentResponseLength
     );
-    console.log(this.state.currentResponseLength === 15)
+    console.log(this.state.currentResponseLength === 15);
     // console.log(this.state.currentResponseLength);
     return (
       <div className="App">
@@ -108,7 +117,10 @@ class App extends Component {
         <ImageGallery>
           <ImageGalleryItem images={this.state.images} />
         </ImageGallery>
-        {this.state.currentResponseLength === 15 && <Button onClick={this.loadMore} />}
+        {this.state.isLoading && <Loader />}
+        {this.state.currentResponseLength === 15 && (
+          <Button onClick={this.loadMore} />
+        )}
       </div>
     );
   }
