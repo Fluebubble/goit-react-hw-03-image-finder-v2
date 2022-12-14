@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import ggwp from 'api/api';
 
 class Searchbar extends Component {
   state = {

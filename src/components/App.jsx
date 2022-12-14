@@ -1,11 +1,11 @@
-import Loader from './Loader/Loader';
+// import Loader from './Loader/Loader';
 import Searchbar from './Searchbar/Searchbar';
 import getImages from 'api/api';
 import ImageGallery from './ImageGallery/ImageGallery';
 import ImageGalleryItem from './ImageGalleryItem/ImageGalleryItem';
 import React, { Component } from 'react';
 import Button from './Button/Button';
-import { ToastContainer, toast } from 'react-toastify';
+// import { ToastContainer, toast } from 'react-toastify';
 
 class App extends Component {
   state = {
