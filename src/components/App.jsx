@@ -5,16 +5,24 @@ import ImageGallery from './ImageGallery/ImageGallery';
 import ImageGalleryItem from './ImageGalleryItem/ImageGalleryItem';
 import React, { Component } from 'react';
 import Button from './Button/Button';
+import Modal from './Modal/Modal';
 // import { ToastContainer, toast } from 'react-toastify';
 
 class App extends Component {
   state = {
     query: '',
-    isLoading: false,
     images: [],
     page: 1,
     currentResponseLength: null,
-    showModal: false,
+    currentStatus: 'idle',
+    statuses: {
+      idle: 'idle',
+      submitting: 'submitting',
+      submitted: 'submitted',
+      loading: 'loading',
+    },
+    openedImage: {},
+    isModalOpen: false,
   };
 
   handleSubmit = e => {
@@ -25,27 +33,29 @@ class App extends Component {
     this.setState({
       images: [],
       page: 1,
+      currentStatus: this.state.statuses.submitting,
     });
-    console.log(e.target.elements[1].value);
-    console.log(e);
     e.target.reset();
   };
 
+  handleClick = e => {
+    e.preventDefault();
+    this.setState({
+      openedImage: {
+        link: this.state.images[e.currentTarget.id].largeImageURL,
+        alt: this.state.images[e.currentTarget.id].tags,
+      },
+      isModalOpen: true,
+    });
+  };
+
   componentDidUpdate(_, prevState) {
-    console.log('App componentDidUpdate');
-    if (this.state.query === prevState.query && this.state.page === 1) {
-      console.log('this.state === ', this.state);
-      console.log('prevState === ', prevState);
-      // this.setState({
-      //   isLoading: true
-      // })
+    if (this.state.currentStatus === this.state.statuses.submitting) {
       getImages(this.state.query, this.state.page)
         .then(images => {
-          console.log(images.length);
           this.setState(state => {
             return {
               images,
-              isLoading: false,
               currentResponseLength: images.length,
               page: state.page + 1,
             };
@@ -56,7 +66,7 @@ class App extends Component {
         })
         .finally(() => {
           this.setState({
-            isLoading: false,
+            currentStatus: this.state.statuses.idle,
           });
         });
     }
@@ -78,14 +88,14 @@ class App extends Component {
 
   loadMore = () => {
     this.setState({
-      isLoading: true,
+      currentStatus: this.state.statuses.loading,
     });
     getImages(this.state.query, this.state.page)
       .then(result => {
-        console.log(result);
         this.setState(prevState => {
           return {
             images: [...prevState.images, ...result],
+            currentResponseLength: result.length,
           };
         });
       })
@@ -96,28 +106,48 @@ class App extends Component {
         this.setState(prevState => {
           return {
             page: prevState.page + 1,
-            isLoading: false,
+            currentStatus: this.state.statuses.idle,
           };
         });
       });
   };
 
+  closeModalByMouse = e => {
+    if (e.target.className === 'Overlay') {
+      this.setState({
+        isModalOpen: false,
+      });
+    }
+  };
+
+  closeModalByEsc = () => {
+    this.setState({
+      isModalOpen: false,
+    });
+  };
+
   render() {
-    console.log('App render()');
-    console.log(
-      'this.state.currentResponseLength === ',
-      this.state.currentResponseLength
-    );
-    console.log(this.state.currentResponseLength === 15);
-    // console.log(this.state.currentResponseLength);
     return (
       <div className="App">
+        {this.state.isModalOpen && (
+          <Modal
+            image={this.state.openedImage}
+            onMouseClose={this.closeModalByMouse}
+            onEscClose={this.closeModalByEsc}
+          />
+        )}
         <Searchbar onSubmit={this.handleSubmit} onChange={this.handleChange} />
         {/* <Loader /> */}
         <ImageGallery>
-          <ImageGalleryItem images={this.state.images} />
+          <ImageGalleryItem
+            images={this.state.images}
+            onClick={this.handleClick}
+          />
         </ImageGallery>
-        {this.state.isLoading && <Loader />}
+        {this.state.currentStatus ===
+          (this.state.statuses.submitting || this.state.statuses.loading) && (
+          <Loader />
+        )}
         {this.state.currentResponseLength === 15 && (
           <Button onClick={this.loadMore} />
         )}
