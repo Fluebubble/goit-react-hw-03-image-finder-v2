@@ -9,3 +9,21 @@ class ImageGallery extends Component {
 }
 
 export default ImageGallery;
+
+
+
+
+const TestComponent1 = () => {
+  const [username, setUsername] = useState("");
+  const [todos, setTodos] = useState([{ text: "Learn hooks" }]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+};
+
+class TestComponent2 extends Component {
+  state= {
+    username: '',
+    todos: [{ text: "Learn hooks" }],
+    isModalOpen: false,
+  }
+
+}

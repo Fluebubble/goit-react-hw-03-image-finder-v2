@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
 
 class Modal extends Component {
-  componentDidMount = () => {
+  componentDidMount() {
     console.log('Modal mounted');
-    window.addEventListener('keydown', () => {
-      this.props.onEscClose();
-    });
-  };
+    // window.addEventListener('keydown', () => {
+    //   this.props.onEscClose();
+    // });
+  }
 
   componentWillUnmount() {
     console.log('Modal UNmounted');
-    window.removeEventListener('keydown', () => {
-      this.props.onEscClose();
-    });
+    // window.removeEventListener('keydown', () => {
+    //   this.props.onEscClose();
+    // });
   }
   render() {
     const { link, alt } = this.props.image;
